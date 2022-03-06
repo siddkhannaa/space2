@@ -35,7 +35,7 @@ controls.update();
 // TEXTURES
 // background
 const widepeepoTexture = new THREE.TextureLoader().load('assets/widepeepoHappy.png');
-// scene.background = widepeepoTexture;
+
 // cube thingy
 const sadgeTexture = new THREE.TextureLoader().load('assets/faangsadge.png');
 
