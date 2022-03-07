@@ -1,86 +1,75 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
+// creating the scene
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-camera.position.z = 30;
+// init orbit controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.update();
 
 // making the donut (torus)
 const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
 const material = new THREE.MeshBasicMaterial({ color: 0xFF6347, wireframe: true});
 const torus = new THREE.Mesh(geometry, material);
-scene.add(torus);
 
-// light source
+
+// light source //
 const pointLight = new THREE.PointLight(0xffffff);
-pointLight.position.set(20,20,20);
-
 const ambientLight = new THREE.AmbientLight(0xffffff);
-scene.add(pointLight, ambientLight);
-
 const lightHelper = new THREE.PointLightHelper(pointLight);
 const gridHelper = new THREE.GridHelper(200, 50);
-scene.add(lightHelper, gridHelper);
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.update();
 
-// TEXTURES
-// background
+// TEXTURES //
 const widepeepoTexture = new THREE.TextureLoader().load('assets/widepeepoHappy.png');
-
-// cube thingy
 const sadgeTexture = new THREE.TextureLoader().load('assets/faangsadge.png');
-
-// side moon texture
-const normalTexture = new THREE.TextureLoader().load('assets/normal.jpg');
-
-// for another moon
 const pogUTeethTexture = new THREE.TextureLoader().load('assets/poguTeeth.png')
 
-// making faangsadge box
-const sadge = new THREE.Mesh(
-new THREE.BoxGeometry(3,3,3),
-new THREE.MeshBasicMaterial({ map: sadgeTexture })
-);
-scene.add(sadge);
+// rough texture for moon
+const normalTexture = new THREE.TextureLoader().load('assets/normal.jpg');
 
-// making peepomoon
+// mapping sadgeTexture to a boxgeometry
+const sadge = new THREE.Mesh(
+    new THREE.BoxGeometry(3,3,3),
+    new THREE.MeshBasicMaterial({ map: sadgeTexture })
+);
+    
+// mapping widepeepoTexture on a sphere
+// normal map used for moon-like look
 const peepoMoon = new THREE.Mesh(
 new THREE.SphereGeometry(3,32,32),
 new THREE.MeshStandardMaterial( {
     map: widepeepoTexture,
     normalMap: normalTexture
 })
-)
-scene.add(peepoMoon);
+);
 
-peepoMoon.position.z = 18;
-peepoMoon.position.y = 12;
-peepoMoon.position.x = -7;
-
-// another moon thing
+// mapping poguTeethTexture to a sphere
+// normal map used for moon-like look
 const poguTeethMoon = new THREE.Mesh(
 new THREE.SphereGeometry(5,32,32),
 new THREE.MeshStandardMaterial( {
     map: pogUTeethTexture,
     normalMap: normalTexture
 })
-)
-scene.add(poguTeethMoon);
+);
 
-poguTeethMoon.position.z = 40;
-poguTeethMoon.position.y = 20;
-poguTeethMoon.position.x = -20;
+// setting default camera pos
+camera.position.z = 30;
 
+// setting the position of the light source
+pointLight.position.set(20,20,20);
+peepoMoon.position.set(-7, 12, 18)
+poguTeethMoon.position.set(0, 30, 10)
 
+// move when scroll
+//document.body.onscroll = moveCamera
+// ONLY USED WITH SCROLL MOVE - not called
 function moveCamera() {
 const t = document.body.getBoundingClientRect().top;
 peepoMoon.rotation.x += 0.05;
@@ -99,8 +88,18 @@ camera.position.x = t*-0.0002;
 camera.position.y = t*-0.0002;
 }
 
-document.body.onscroll = moveCamera
+// WINDOW EVENT LISTENERS
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.render();
+})
 
+// DOC EVENT LISTENERS
+// add for arrow keystrokes
+
+// FUNCTIONS //
 // making a starry sky
 function addStar() {
     const geometry = new THREE.SphereGeometry(0.25, 24, 24);
@@ -111,11 +110,7 @@ function addStar() {
 
     star.position.set(x,y,z);
     scene.add(star);
-
-}
-
-for(let i = 0; i < 200; i++){
-    addStar();
+    
 }
 
 // like a gameloop
@@ -143,4 +138,19 @@ function animate() {
 
 }
 
+
+// SCENE ADDS //
+scene.add(torus);
+scene.add(pointLight, ambientLight);
+scene.add(lightHelper, gridHelper);
+scene.add(sadge);
+scene.add(peepoMoon);
+scene.add(poguTeethMoon);
+
+// creating stars
+for(let i = 0; i < 200; i++){
+    addStar();
+}
+
+// calling animate to display animations
 animate();
